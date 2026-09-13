@@ -4,9 +4,10 @@ const MIN_ANGLE = -135
 const MAX_ANGLE = 135
 const SWEEP = MAX_ANGLE - MIN_ANGLE
 
-// Physical-style rotary knob. Value is normalised 0..1.
-// Supports pointer dragging (vertical), mouse wheel, and arrow-key input.
-export default function ControlKnob({ label, value, onChange, size = 56 }) {
+// Physical-style rotary knob, value normalised 0..1.
+// `format` optionally converts the 0..1 value into a display string for the
+// transient value chip (e.g. Hz, seconds) instead of a raw percentage.
+export default function Knob({ label, value, onChange, size = 46, format }) {
   const [showValue, setShowValue] = useState(false)
   const dragState = useRef(null)
   const hideTimeout = useRef(null)
@@ -28,8 +29,7 @@ export default function ControlKnob({ label, value, onChange, size = 56 }) {
   const handlePointerMove = (e) => {
     if (!dragState.current) return
     const deltaY = dragState.current.startY - e.clientY
-    const next = clamp(dragState.current.startValue + deltaY / 140)
-    onChange(next)
+    onChange(clamp(dragState.current.startValue + deltaY / 140))
   }
 
   const handlePointerUp = (e) => {
@@ -58,10 +58,11 @@ export default function ControlKnob({ label, value, onChange, size = 56 }) {
   }
 
   const angle = MIN_ANGLE + value * SWEEP
+  const displayText = format ? format(value) : Math.round(value * 100)
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative" style={{ marginBottom: showValue ? 22 : 0 }}>
+    <div className="flex flex-col items-center gap-1">
+      <div className="relative" style={{ marginBottom: showValue ? 20 : 0 }}>
         <div
           className="knob-body"
           style={{ width: size, height: size }}
@@ -79,16 +80,11 @@ export default function ControlKnob({ label, value, onChange, size = 56 }) {
           onKeyDown={handleKeyDown}
         >
           <div className="knob-cap" />
-          <div
-            className="knob-indicator"
-            style={{ transform: `translateX(-50%) rotate(${angle}deg)` }}
-          />
+          <div className="knob-indicator" style={{ transform: `translateX(-50%) rotate(${angle}deg)` }} />
         </div>
-        {showValue && (
-          <div className="value-chip">{Math.round(value * 100)}</div>
-        )}
+        {showValue && <div className="value-chip">{displayText}</div>}
       </div>
-      <span className="label-print text-[10px]" style={{ color: 'var(--cream)' }}>
+      <span className="label-print text-[8px]" style={{ color: 'var(--text)' }}>
         {label}
       </span>
     </div>
