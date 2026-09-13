@@ -1,0 +1,218 @@
+@import "tailwindcss";
+
+:root {
+  --page-bg: #f2f0e9;
+  --enclosure: #e7e3d8;
+  --enclosure-edge: #cfc9b8;
+  --panel: #11183f;
+  --panel-dark: #0b1030;
+  --accent: #e85b32;
+  --cream: #eee9dc;
+  --black: #090909;
+  --muted-blue: #34395d;
+  --led-off: #711616;
+  --led-on: #d52b24;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--page-bg);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  color: var(--black);
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Visible keyboard focus everywhere, no reliance on color alone */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.label-print {
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.hairline {
+  height: 1px;
+  background: var(--muted-blue);
+}
+
+.hairline-accent {
+  height: 1px;
+  background: var(--accent);
+}
+
+/* Knob */
+.knob-body {
+  position: relative;
+  border-radius: 9999px;
+  background: var(--black);
+  border: 2px solid #2a2a2a;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.knob-body:active {
+  cursor: grabbing;
+}
+.knob-indicator {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  width: 2px;
+  height: 40%;
+  background: var(--cream);
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(0deg);
+}
+.knob-cap {
+  position: absolute;
+  inset: 30%;
+  border-radius: 9999px;
+  background: #1c1c1c;
+  border: 1px solid #333;
+}
+
+/* Selector (large cream rotary) */
+.selector-body {
+  position: relative;
+  border-radius: 9999px;
+  background: var(--cream);
+  border: 3px solid var(--panel-dark);
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.selector-body:active {
+  cursor: grabbing;
+}
+.selector-indicator {
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  width: 3px;
+  height: 32%;
+  background: var(--panel-dark);
+  transform-origin: bottom center;
+  transform: translateX(-50%) rotate(0deg);
+}
+.selector-number {
+  position: absolute;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cream);
+  width: 16px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translate(-50%, -50%);
+}
+.selector-number.active {
+  color: var(--accent);
+}
+
+/* Footswitch */
+.footswitch-outer {
+  border-radius: 9999px;
+  background: #b7b2a4;
+  border: 3px solid #8d8878;
+}
+.footswitch-ring {
+  border-radius: 9999px;
+  background: #c9c4b6;
+  border: 2px solid #97917f;
+}
+.footswitch-cap {
+  border-radius: 9999px;
+  background: #dcd7c9;
+  border: 2px solid #97917f;
+}
+.footswitch-cap.pressed {
+  transform: translateY(2px);
+  background: #cfcabc;
+}
+
+/* LED */
+.led {
+  border-radius: 9999px;
+  border: 1px solid #2a0a0a;
+}
+.led-highlight {
+  border-radius: 9999px;
+  position: absolute;
+  top: 14%;
+  left: 22%;
+  width: 28%;
+  height: 22%;
+  background: rgba(255, 255, 255, 0.35);
+}
+
+/* Piano */
+.piano-white-key {
+  background: var(--cream);
+  border: 1px solid var(--panel-dark);
+  border-top: none;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+}
+.piano-white-key.pressed {
+  background: #d8d3c3;
+  transform: translateY(2px);
+}
+.piano-black-key {
+  background: var(--panel-dark);
+  border: 1px solid var(--black);
+  position: absolute;
+  top: 0;
+  cursor: pointer;
+  user-select: none;
+  z-index: 2;
+}
+.piano-black-key.pressed {
+  background: #1c2358;
+  transform: translateY(2px);
+}
+.key-hint {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: var(--muted-blue);
+  pointer-events: none;
+}
+.piano-black-key .key-hint {
+  color: var(--cream);
+  opacity: 0.7;
+}
+
+.value-chip {
+  position: absolute;
+  bottom: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--panel-dark);
+  color: var(--cream);
+  border: 1px solid var(--accent);
+  padding: 1px 5px;
+  font-size: 10px;
+  white-space: nowrap;
+  pointer-events: none;
+}
