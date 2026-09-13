@@ -53,6 +53,8 @@ export default function Header() {
             value={tempoToValue(state.tempo)}
             onChange={(v) => setTempo(valueToTempo(v))}
             format={() => `${state.tempo}`}
+            displayMin={MIN_BPM}
+            displayMax={MAX_BPM}
           />
           <Display value={`${state.tempo} BPM`} width={64} />
         </div>

@@ -3,6 +3,7 @@ import { AudioEngine } from '../audio/engine/AudioEngine'
 import { Sequencer } from '../audio/modules/Sequencer'
 import { PRESETS } from '../audio/presets/presets'
 import { DEFAULT_STATE, cloneDefaults } from './synthDefaults'
+import { decodeSearchToPatch, encodeStateToSearch, buildShareUrl } from './urlSync'
 
 const SynthContext = createContext(null)
 
@@ -25,15 +26,51 @@ function saveMemoryToStorage(memory) {
   }
 }
 
+// Merges a decoded URL patch over a base state object, field by field.
+function applyPatchToState(base, patch) {
+  if (!patch) return base
+  return {
+    ...base,
+    vco: { ...base.vco, ...patch.vco },
+    lfo: { ...base.lfo, ...patch.lfo },
+    vcf: { ...base.vcf, ...patch.vcf },
+    envelope: { ...base.envelope, ...patch.envelope },
+    masterVolume: patch.masterVolume ?? base.masterVolume,
+    tempo: patch.tempo ?? base.tempo,
+    sequencer: {
+      ...base.sequencer,
+      steps: patch.sequencer?.steps ?? base.sequencer.steps,
+    },
+    preset: {
+      ...base.preset,
+      current: patch.name ?? base.preset.current,
+    },
+  }
+}
+
 export function SynthProvider({ children }) {
   const engineRef = useRef(null)
   if (!engineRef.current) engineRef.current = new AudioEngine()
   const engine = engineRef.current
 
-  const [state, setState] = useState(() => ({
-    ...cloneDefaults(),
-    preset: { current: 0, memory: loadMemoryFromStorage() },
-  }))
+  const [state, setState] = useState(() => {
+    const base = {
+      ...cloneDefaults(),
+      preset: { current: 0, memory: loadMemoryFromStorage() },
+    }
+    const urlPatch = decodeSearchToPatch(window.location.search)
+    const initial = applyPatchToState(base, urlPatch)
+    // Prime the engine's own params so ensureContext() picks up the shared
+    // patch immediately on first sound, before any knob is touched.
+    engineRef.current.loadPatch({
+      vco: initial.vco,
+      lfo: initial.lfo,
+      vcf: initial.vcf,
+      envelope: initial.envelope,
+      masterVolume: initial.masterVolume,
+    })
+    return initial
+  })
   const [activeNotes, setActiveNotes] = useState(() => new Set())
 
   const stepsRef = useRef(state.sequencer.steps)
@@ -55,6 +92,17 @@ export function SynthProvider({ children }) {
   useEffect(() => {
     sequencer.setTempo(state.tempo)
   }, [state.tempo, sequencer])
+
+  // Keep the address bar in sync with the current patch so the URL is
+  // always a valid, shareable link to what's currently loaded. Deliberately
+  // excludes ephemeral fields (currentStep, selectedStep) so this doesn't
+  // fire on every sequencer tick during playback.
+  useEffect(() => {
+    const search = encodeStateToSearch(state)
+    const url = `${window.location.pathname}?${search}`
+    window.history.replaceState(null, '', url)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.vco, state.lfo, state.vcf, state.envelope, state.masterVolume, state.tempo, state.sequencer.steps, state.preset.current])
 
   // Optional Web MIDI input. Entirely additive — if unsupported or denied,
   // the synth remains fully playable from the computer keyboard.
@@ -284,6 +332,19 @@ export function SynthProvider({ children }) {
     })
   }, [])
 
+  // --- Sharing --------------------------------------------------------------
+
+  const copyShareLink = useCallback(async () => {
+    const url = buildShareUrl(state)
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      // Clipboard API unavailable (older browser, insecure context, denied
+      // permission) — the URL is already live in the address bar either way.
+    }
+    return url
+  }, [state])
+
   const value = useMemo(
     () => ({
       state,
@@ -306,6 +367,7 @@ export function SynthProvider({ children }) {
       writePatch,
       recallNextPatch,
       erasePatch,
+      copyShareLink,
     }),
     [
       state,
@@ -325,6 +387,7 @@ export function SynthProvider({ children }) {
       writePatch,
       recallNextPatch,
       erasePatch,
+      copyShareLink,
     ],
   )
 

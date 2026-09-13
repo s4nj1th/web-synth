@@ -1,7 +1,7 @@
 import ModulePanel from '../synth/ModulePanel'
 import Knob from '../synth/Knob'
 import { useSynth } from '../../state/synthStore'
-import { cutoffFromValue } from '../../audio/modules/Filter'
+import { cutoffFromValue, CUTOFF_MIN_HZ, CUTOFF_MAX_HZ } from '../../audio/modules/Filter'
 
 export default function VCFPanel() {
   const { state, setVcf } = useSynth()
@@ -15,6 +15,9 @@ export default function VCFPanel() {
           value={vcf.cutoff}
           onChange={(v) => setVcf('cutoff', v)}
           format={(v) => `${Math.round(cutoffFromValue(v))}Hz`}
+          displayMin={CUTOFF_MIN_HZ}
+          displayMax={CUTOFF_MAX_HZ}
+          displayCurve="log"
         />
         <Knob label="Res" value={vcf.resonance} onChange={(v) => setVcf('resonance', v)} />
       </div>

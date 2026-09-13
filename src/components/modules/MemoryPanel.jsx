@@ -5,20 +5,28 @@ import Display from '../synth/Display'
 import { useSynth } from '../../state/synthStore'
 
 export default function MemoryPanel() {
-  const { state, writePatch, recallNextPatch, erasePatch } = useSynth()
+  const { state, writePatch, recallNextPatch, erasePatch, copyShareLink } = useSynth()
   const [recordOn, setRecordOn] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   const currentLabel =
     typeof state.preset.current === 'string' ? state.preset.current.slice(0, 10) : '----'
 
+  const handleCopyLink = async () => {
+    await copyShareLink()
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1200)
+  }
+
   return (
     <ModulePanel title="Memory" width={110}>
-      <Display value={currentLabel} width={90} label="Patch" />
+      <Display value={copied ? 'Copied!' : currentLabel} width={90} label="Patch" />
       <div className="flex flex-col gap-1 items-stretch">
         <SynthButton label="Write" small onClick={writePatch} />
         <SynthButton label="Record" small active={recordOn} onClick={() => setRecordOn((v) => !v)} />
         <SynthButton label="Play" small onClick={recallNextPatch} />
         <SynthButton label="Erase" small onClick={erasePatch} />
+        <SynthButton label="Copy Link" small active={copied} onClick={handleCopyLink} />
       </div>
     </ModulePanel>
   )
