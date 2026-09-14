@@ -12,6 +12,7 @@ function applyDrumPatchToState(base, patch) {
   return {
     ...base,
     bpm: patch.bpm ?? base.bpm,
+    masterVolume: patch.masterVolume ?? base.masterVolume,
     preset: patch.name ?? base.preset,
     rows: base.rows.map((row) => (patch.rows[row.id] ? { ...row, steps: patch.rows[row.id] } : row)),
   }
@@ -25,7 +26,9 @@ export function DrumProvider({ children }) {
   const [state, setState] = useState(() => {
     const base = cloneDrumDefaults()
     const urlPatch = decodeSearchToDrumPatch(window.location.search)
-    return applyDrumPatchToState(base, urlPatch)
+    const initial = applyDrumPatchToState(base, urlPatch)
+    engineRef.current.setMasterVolume(initial.masterVolume)
+    return initial
   })
 
   const rowsRef = useRef(state.rows)
@@ -60,7 +63,15 @@ export function DrumProvider({ children }) {
     const url = `${window.location.pathname}?${search}`
     window.history.replaceState(null, '', url)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.bpm, state.rows, state.preset])
+  }, [state.bpm, state.masterVolume, state.rows, state.preset])
+
+  const setMasterVolume = useCallback(
+    (value) => {
+      setState((prev) => ({ ...prev, masterVolume: value }))
+      engine.setMasterVolume(value)
+    },
+    [engine],
+  )
 
   const togglePlay = useCallback(() => {
     setState((prev) => {
@@ -127,13 +138,14 @@ export function DrumProvider({ children }) {
       state,
       togglePlay,
       setBpm,
+      setMasterVolume,
       toggleStep,
       clearAll,
       selectPreset,
       previewRow,
       copyShareLink,
     }),
-    [state, togglePlay, setBpm, toggleStep, clearAll, selectPreset, previewRow, copyShareLink],
+    [state, togglePlay, setBpm, setMasterVolume, toggleStep, clearAll, selectPreset, previewRow, copyShareLink],
   )
 
   return <DrumContext.Provider value={value}>{children}</DrumContext.Provider>

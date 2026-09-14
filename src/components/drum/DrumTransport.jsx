@@ -15,7 +15,7 @@ function valueToTempo(v) {
 }
 
 export default function DrumTransport() {
-  const { state, togglePlay, setBpm, clearAll, copyShareLink } = useDrum()
+  const { state, togglePlay, setBpm, setMasterVolume, clearAll, copyShareLink } = useDrum()
   const [copied, setCopied] = useState(false)
 
   const handleCopyLink = async () => {
@@ -38,6 +38,7 @@ export default function DrumTransport() {
         />
         <Display value={`${state.bpm} BPM`} width={64} />
       </div>
+      <Knob label="Volume" value={state.masterVolume} onChange={setMasterVolume} />
       <SynthButton label="Clear" onClick={clearAll} />
       <SynthButton label={copied ? 'Copied!' : 'Copy Link'} active={copied} onClick={handleCopyLink} />
     </div>

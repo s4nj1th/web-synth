@@ -22,6 +22,7 @@ function hexToSteps(hex) {
 export function encodeDrumStateToSearch(state) {
   const params = new URLSearchParams()
   params.set('bpm', String(Math.round(state.bpm)))
+  params.set('vol', String(Number(state.masterVolume.toFixed(2))))
   if (typeof state.preset === 'string') {
     params.set('name', state.preset)
   }
@@ -42,6 +43,14 @@ export function decodeSearchToDrumPatch(search) {
     const bpm = parseInt(params.get('bpm'), 10)
     if (!Number.isNaN(bpm)) {
       patch.bpm = bpm
+      found = true
+    }
+  }
+
+  if (params.has('vol')) {
+    const vol = parseFloat(params.get('vol'))
+    if (!Number.isNaN(vol)) {
+      patch.masterVolume = vol
       found = true
     }
   }

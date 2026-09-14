@@ -13,6 +13,7 @@ const EMPTY_STEPS = () => Array(16).fill(false)
 export const DEFAULT_DRUM_STATE = {
   playing: false,
   bpm: 90,
+  masterVolume: 0.8,
   currentStep: -1,
   preset: 0,
   rows: DRUM_ROW_DEFS.map((def) => ({ id: def.id, steps: EMPTY_STEPS() })),
