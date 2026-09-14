@@ -1,5 +1,6 @@
 import { RouterProvider, useRouter } from './router/Router'
 import NavBar from './components/layout/NavBar'
+import Footer from './components/layout/Footer'
 import SynthPage from './pages/SynthPage'
 import DrumMachinePage from './pages/DrumMachinePage'
 import PlaceholderPage from './pages/PlaceholderPage'
@@ -16,9 +17,12 @@ function CurrentPage() {
 export default function App() {
   return (
     <RouterProvider>
-      <div style={{ background: 'var(--page-bg)', minHeight: '100vh' }}>
+      <div className="flex flex-col" style={{ background: 'var(--page-bg)', minHeight: '100vh' }}>
         <NavBar />
-        <CurrentPage />
+        <div className="flex-1">
+          <CurrentPage />
+        </div>
+        <Footer />
       </div>
     </RouterProvider>
   )

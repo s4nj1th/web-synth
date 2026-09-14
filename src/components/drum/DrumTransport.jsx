@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import Knob from '../synth/Knob'
 import Display from '../synth/Display'
 import SynthButton from '../synth/ToggleButton'
@@ -14,7 +15,14 @@ function valueToTempo(v) {
 }
 
 export default function DrumTransport() {
-  const { state, togglePlay, setBpm, clearAll } = useDrum()
+  const { state, togglePlay, setBpm, clearAll, copyShareLink } = useDrum()
+  const [copied, setCopied] = useState(false)
+
+  const handleCopyLink = async () => {
+    await copyShareLink()
+    setCopied(true)
+    setTimeout(() => setCopied(false), 1200)
+  }
 
   return (
     <div className="flex items-center gap-4 flex-wrap px-4 py-3" style={{ borderBottom: '1px solid var(--hairline)' }}>
@@ -31,6 +39,7 @@ export default function DrumTransport() {
         <Display value={`${state.bpm} BPM`} width={64} />
       </div>
       <SynthButton label="Clear" onClick={clearAll} />
+      <SynthButton label={copied ? 'Copied!' : 'Copy Link'} active={copied} onClick={handleCopyLink} />
     </div>
   )
 }

@@ -3,15 +3,30 @@ import { DrumEngine } from '../audio/engine/DrumEngine'
 import { DrumSequencer } from '../audio/modules/DrumSequencer'
 import { DRUM_PRESETS } from '../audio/presets/drumPresets'
 import { cloneDrumDefaults, DRUM_ROW_DEFS } from './drumDefaults'
+import { decodeSearchToDrumPatch, encodeDrumStateToSearch, buildDrumShareUrl } from './drumUrlSync'
 
 const DrumContext = createContext(null)
+
+function applyDrumPatchToState(base, patch) {
+  if (!patch) return base
+  return {
+    ...base,
+    bpm: patch.bpm ?? base.bpm,
+    preset: patch.name ?? base.preset,
+    rows: base.rows.map((row) => (patch.rows[row.id] ? { ...row, steps: patch.rows[row.id] } : row)),
+  }
+}
 
 export function DrumProvider({ children }) {
   const engineRef = useRef(null)
   if (!engineRef.current) engineRef.current = new DrumEngine()
   const engine = engineRef.current
 
-  const [state, setState] = useState(() => cloneDrumDefaults())
+  const [state, setState] = useState(() => {
+    const base = cloneDrumDefaults()
+    const urlPatch = decodeSearchToDrumPatch(window.location.search)
+    return applyDrumPatchToState(base, urlPatch)
+  })
 
   const rowsRef = useRef(state.rows)
   useEffect(() => {
@@ -36,6 +51,16 @@ export function DrumProvider({ children }) {
   // Tear down the AudioContext when the drum page is left, since each page
   // owns its own context rather than sharing one across the whole site.
   useEffect(() => () => engine.dispose(), [engine])
+
+  // Keep the address bar in sync with the current pattern so it's always a
+  // valid, shareable link. Excludes currentStep/playing so this doesn't
+  // fire on every sixteenth-note tick during playback.
+  useEffect(() => {
+    const search = encodeDrumStateToSearch(state)
+    const url = `${window.location.pathname}?${search}`
+    window.history.replaceState(null, '', url)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.bpm, state.rows, state.preset])
 
   const togglePlay = useCallback(() => {
     setState((prev) => {
@@ -87,6 +112,16 @@ export function DrumProvider({ children }) {
     [engine],
   )
 
+  const copyShareLink = useCallback(async () => {
+    const url = buildDrumShareUrl(state)
+    try {
+      await navigator.clipboard.writeText(url)
+    } catch {
+      // Clipboard API unavailable — the URL is already live in the address bar either way.
+    }
+    return url
+  }, [state])
+
   const value = useMemo(
     () => ({
       state,
@@ -96,8 +131,9 @@ export function DrumProvider({ children }) {
       clearAll,
       selectPreset,
       previewRow,
+      copyShareLink,
     }),
-    [state, togglePlay, setBpm, toggleStep, clearAll, selectPreset, previewRow],
+    [state, togglePlay, setBpm, toggleStep, clearAll, selectPreset, previewRow, copyShareLink],
   )
 
   return <DrumContext.Provider value={value}>{children}</DrumContext.Provider>
