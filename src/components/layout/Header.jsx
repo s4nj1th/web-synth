@@ -36,7 +36,7 @@ export default function Header() {
       </div>
 
       <div className="flex flex-col items-start">
-        <h1 className="text-[26px] leading-none font-bold tracking-tight" style={{ color: 'var(--cream)', fontFamily: 'Georgia, serif' }}>
+        <h1 className="brand-font text-[26px] leading-none font-bold tracking-tight" style={{ color: 'var(--cream)' }}>
           WEB-SYNTH
         </h1>
         <p className="label-print text-[9px] mt-1" style={{ color: 'var(--accent)' }}>

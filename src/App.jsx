@@ -1,12 +1,25 @@
-import SynthPanel from './components/synth/SynthPanel'
-import { SynthProvider } from './state/synthStore'
+import { RouterProvider, useRouter } from './router/Router'
+import NavBar from './components/layout/NavBar'
+import SynthPage from './pages/SynthPage'
+import DrumMachinePage from './pages/DrumMachinePage'
+import PlaceholderPage from './pages/PlaceholderPage'
+
+function CurrentPage() {
+  const { path } = useRouter()
+  if (path === '/drums') return <DrumMachinePage />
+  if (path === '/sampler') return <PlaceholderPage title="Sampler" />
+  if (path === '/effects') return <PlaceholderPage title="Effects" />
+  if (path === '/arp') return <PlaceholderPage title="Arpeggiator" />
+  return <SynthPage />
+}
 
 export default function App() {
   return (
-    <SynthProvider>
-      <div className="min-h-screen flex items-center justify-center py-8 px-3" style={{ background: 'var(--page-bg)' }}>
-        <SynthPanel />
+    <RouterProvider>
+      <div style={{ background: 'var(--page-bg)', minHeight: '100vh' }}>
+        <NavBar />
+        <CurrentPage />
       </div>
-    </SynthProvider>
+    </RouterProvider>
   )
 }

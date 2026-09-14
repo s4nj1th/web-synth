@@ -26,7 +26,7 @@ html, body, #root {
 body {
   margin: 0;
   background: var(--page-bg);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   color: var(--text);
 }
@@ -41,9 +41,14 @@ button {
 }
 
 .label-print {
+  font-family: 'Inter', Arial, sans-serif;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   font-weight: 700;
+}
+
+.brand-font {
+  font-family: 'Oswald', 'Georgia', serif;
 }
 
 .hairline-v {
@@ -186,7 +191,7 @@ button {
   background: var(--dark-control);
   border: 1px solid #2c2c2c;
   color: var(--led-on);
-  font-family: Georgia, 'Courier New', monospace;
+  font-family: 'Space Mono', 'Courier New', monospace;
   letter-spacing: 0.05em;
   text-align: center;
 }
@@ -258,4 +263,31 @@ button {
 .step-pad.active {
   border-color: var(--accent);
   background: #241d18;
+}
+
+/* Drum machine step grid */
+.drum-cell {
+  background: #1c1c1c;
+  border: 1px solid #333;
+  cursor: pointer;
+}
+.drum-cell.group-start {
+  border-left: 2px solid #4a4a4a;
+}
+.drum-cell.active {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+.drum-cell.playhead {
+  border-color: var(--cream);
+}
+.position-led {
+  border-radius: 2px;
+  background: #2a2a2a;
+}
+.position-led.group-start {
+  margin-left: 4px;
+}
+.position-led.on {
+  background: var(--led-on);
 }
